@@ -1,0 +1,66 @@
+/**
+ * 题目：给你一个整数数组 nums，其中恰好有两个元素只出现一次，其余所有元素均出现两次。 找出只出现一次的那两个元素。你可以按 任意顺序 返回答案。你必须设计并实现线性时间复杂度的算法且仅使用常量额外空间来解决此问题。
+ */
+
+class Solution{
+     //方法一：先排序再遍历
+    public int[] singleNumber1(int nums[]){
+        int n = nums.length;
+        int[] res = new int[2];
+        Arrays.sort(nums);
+        int j = 0;
+        for(int i=0;i<n-1;i++){
+            if(nums[i] != nums[i+1]){
+                res[j++] = nums[i];
+            }else{
+                i++;
+            }
+        }
+        if(nums[n-2]!=nums[n-1]){
+            res[1] = nums[n-1];
+        }
+        return res;
+    }
+
+    //方法二：哈希表
+    public int[] singleNumber2(int nums[]){
+        int n = nums.length;
+        int[] res = new int[2];
+        Map<Integer,Integer> numsMap = new HashMap<Integer,Integer>();
+        for(int i = 0;i<n;i++){
+            numsMap.put(nums[i],numsMap.getOrDefault(nums[i],0)+1);
+        }
+        int index = 0;
+        for(Map.Entry<Integer,Integer> entry : numsMap.entrySet()){
+            if(entry.getValue() == 1){
+                res[index++] = entry.getKey();
+            }
+        }
+        return res;
+    }
+
+    //方法三：使用位运算，设要求的两个不同值为x1和x2
+    public int[] singleNumber2(int nums[]){
+        int xornum = 0;
+        for(int i : nums){
+            //全部异或之后，xornum为x1和x2的异或,因为其他相同的值异或为0
+            xornum ^= i;
+        }
+        //进行与运算的时候，-x 在计算机中用x的补码存储，x的值的基础上进行按位取反(~x)之后在增加1所得。所以 x&-x 可以求出 x 二进制最低位那个 1，假设为l位
+        //比如10的二进制是0000 0000 0000 1010； -10的二进制是1111 1111 1111 0101 +1 = 1111 1111 1111 0110 ，相与得到0000 0000 0000 0010
+        int lsb = xornum & (-xornum);
+        //可以将nums里面的数分成两类，一类l位为0，一类为1，x1和x2在不同类里
+        int type1 = 0,type2 = 0;
+        for(int i : nums){
+            if((i & lsb) == 0 ){
+                type1 ^= i;
+            }else{
+                type2 ^= i;
+            }
+        }
+        return new int[]{type1,type2};
+
+    }
+
+
+}
